@@ -11,6 +11,7 @@ module.exports = {
   update: update,
   destroy: destroy
 }
+var auth  = require('./../../lib/auth-cookie.js');
 
 /** @function list
  * Sends a list of all projects as a JSON array.
@@ -19,15 +20,17 @@ module.exports = {
  * @param {sqlite3.Database} db - the database object
  */
 function list(req, res, db) {
-  db.all("SELECT * FROM projects", [], function(err, projects){
-    if(err) {
-      console.error(err);
-      res.statusCode = 500;
-      res.end("Server Error")
-    }
-    res.setHeader("Content-Type", "text/json");
-    res.end(JSON.stringify(projects));
-  });
+  auth(req, res, function(req, res)){
+    db.all("SELECT * FROM projects", [], function(err, projects){
+      if(err) {
+        console.error(err);
+        res.statusCode = 500;
+        res.end("Server Error")
+      }
+      //res.setHeader("Content-Type", "text/json");
+      res.end(JSON.stringify(projects));
+    });
+  }
 }
 
 /** @function create
@@ -133,7 +136,7 @@ function update(req, res, db) {
 
 /** @destroy
  * Removes the specified project from the database.
- * @param {http.incomingRequest} req - the request object 
+ * @param {http.incomingRequest} req - the request object
  * @param {http.serverResponse} res - the response object
  * @param {sqlite3.Database} db - the database object
  */
